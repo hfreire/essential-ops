@@ -1,92 +1,78 @@
 #!/bin/sh
-#
-# @name backup.sh
-# @version 0.2.2
-# @args $1 = source directory, $2 = destiny directory, $3 = backup name
-# @description
-# @author Hugo Freire <hugo.freire@t-creator.pt>
 
-RSYNC_OPTS="-ahAX --delete --force --ignore-errors"
-RSYNC_EXCLUDES="--exclude dev --exclude backups --exclude cache --exclude run --exclude lock --exclude tmp --exclude spool --exclude amavisd.sock"
-TMP="temp"
 EXTENSION=".tar.gz"
-ROTATIONS=7
 
 # print help
 print_help() {
-    echo "Usage: $0 SRC DEST NAME"
-}
-
-# archive
-function archive() {
-	if [ -e $DEST/$NAME.1$EXTENSION ]; then
-		tar -zxf $DEST/$NAME.1$EXTENSION -C $TMP
-	fi
-	
-	rsync $RSYNC_OPTS $SRC $TMP $RSYNC_EXCLUDES
+    echo "Usage: $0 <dir1 dir2...> <rotations> <backups dir> <name>"
 }
 
 # rotate
-function rotate() {
-	number=$(ls $DEST/$NAME.*$EXTENSION 2>/dev/null | wc -l);
+rotate() {
+	number=$(ls $backups_dir/$name.*$EXTENSION 2>/dev/null | wc -l);
 
+	# no need to rotate
 	if [ "$number" -eq 0 ]; then
-		return # no need to rotate
+		echo "No previous backups detected."
+		return
 	fi
-	
-	if [ "$number" -eq "$ROTATIONS" ]; then
-		rm -f $DEST/$NAME.$number$EXTENSION
+
+	# delete only 1 previous backup
+	if [ "$number" -eq "$rotations" ]; then
+		echo "Detected previous backups. Removing oldest one: $name.$number$EXTENSION"
+		rm -f $backups_dir/$name.$number$EXTENSION
 		number=$(($number-1))
 	fi
-	
-	if [ "$number" -gt "$ROTATIONS" ]; then
-		over=$(($number-$ROTATIONS))
-		for((i=0; $i<=$over;i=$(($i+1)))); do
-			rm -f $DEST/$NAME.$number$EXTENSION
+
+	# delete all number of backups over the number of rotations
+	if [ "$number" -gt "$rotations" ]; then
+		over=$(($number-$rotations))
+		i=0
+		until [ "$i" < "$over" ]; do
+			echo "Detected previous backups. Removing oldest one: $name.$number$EXTENSION"
+			rm -f $backups_dir/$name.$number$EXTENSION
 			number=$(($number-1))
-		done	
-	fi	
-	
+			$(($i+1))
+		done
+	fi
+	echo $number
+
 	number=$(($number+1))
-	backups=$(ls -r $DEST/$NAME.*$EXTENSION);
+	backups=$(ls -tr $backups_dir/$name.*$EXTENSION);
 
 	for backup in $backups; do
-		mv -f $backup $DEST/$NAME.$number$EXTENSION
+		echo "Renaming $backup to $name.$number$EXTENSION"
+		mv -f $backup $backups_dir/$name.$number$EXTENSION
 		number=$(($number-1))
 	done
 }
 
 # package
-function package() {
-	cd $TMP
-	tar -zcf $NAME.1$EXTENSION *
-	
-	chmod 400 $NAME.1$EXTENSION
-	mv $NAME.1$EXTENSION $DEST/
-	cd ..
+package() {
+	tar -czPhf $name.1$EXTENSION $dirs
+	chmod 440 $name.1$EXTENSION
 }
 
 # check arguments
-if [ "${#*}" -ne 3 ]; then
-	print_help
-	exit 1
+if [ "$#" -ne 4 ]; then
+        print_help
+        exit 1
 fi
 
-SRC=$1
-DEST=$2
-NAME=$3
+dirs=$1
+rotations=$2
 
-if [ ! -e "$TMP" ]; then
-	mkdir $TMP
+if [ "$4" = "none" ]; then
+	backups_dir=$3
+	name=backup
+else
+	backups_dir=$3/$4
+	name=$4
 fi
-	
-chmod 700 $TMP
 
-archive
+cd $backups_dir
+
 rotate
 package
-
-rm -rf $TMP
-
 
 exit 0
