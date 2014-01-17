@@ -71,7 +71,7 @@ backup_mysql() {
 
     for database in $databases
     do
-        $MYSQLDUMP_BIN -u $user -p$password -h $host --hex-blob --routines --triggers $database --set-gtid-purged=OFF | gzip > $destination/tables/$database.sql.gz &
+        $MYSQLDUMP_BIN -u $user -p$password -h $host --hex-blob --routines --triggers $database | gzip > $destination/tables/$database.sql.gz &
     done
     wait
 }
@@ -102,12 +102,12 @@ while getopts ":u:p:h:d:n:r:" opt; do
   esac
 done
 
-[[ -n "$user" ]] &&
-[[ -n "$password" ]] &&
-[[ -n "$host" ]]  &&
-[[ -n "$destination" ]]  &&
-[[ -n "$name" ]]  &&
-[[ -n "$rotations" ]] ||
+[ -n "$user" ] &&
+[ -n "$password" ] &&
+[ -n "$host" ]  &&
+[ -n "$destination" ]  &&
+[ -n "$name" ]  &&
+[ -n "$rotations" ] ||
 { print_help; exit 1; }
 
 rotate_backups "$destination" "$name" "$rotations"

@@ -78,10 +78,10 @@ while getopts ":s:d:r:n:" opt; do
   esac
 done
 
-[[ -n "$sources" ]] &&
-[[ -n "$destination" ]] &&
-[[ -n "$rotations" ]]  &&
-[[ -n "$name" ]] || { print_help; exit 1; }
+[ -n "$sources" ] &&
+[ -n "$destination" ] &&
+[ -n "$rotations" ]  &&
+[ -n "$name" ] || { print_help; exit 1; }
 
 rotate_backups "$destination" "$name" "$rotations"
 backup_filesystem "$sources" "$name" "$destination"
