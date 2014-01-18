@@ -71,7 +71,7 @@ backup_mysql() {
 
     for database in $databases
     do
-        $MYSQLDUMP_BIN -u $user -p$password -h $host --hex-blob --routines --triggers $database | gzip > $destination/tables/$database.sql.gz &
+        $MYSQLDUMP_BIN -u $user -p$password -h $host --hex-blob --routines --triggers $database --max_allowed_packet=128M | gzip > $destination/tables/$database.sql.gz &
     done
     wait
 }
