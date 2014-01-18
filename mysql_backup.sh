@@ -67,7 +67,7 @@ backup_mysql() {
     local host=$3
     local destination=$4
 
-    databases=$($MYSQL_BIN -u devops -pGJnXpqUquLlH2hbO -h db.linkafy.com -A --skip-column-names -e"SELECT schema_name FROM information_schema.schemata WHERE schema_name NOT IN ('information_schema','mysql', 'performance_schema', 'innodb', 'tmp')")
+    databases=$($MYSQL_BIN -u $user -p$password -h $host -A --skip-column-names -e"SELECT schema_name FROM information_schema.schemata WHERE schema_name NOT IN ('information_schema','mysql', 'performance_schema', 'innodb', 'tmp')")
 
     for database in $databases
     do
