@@ -8,9 +8,9 @@ print_help() {
 
 # rotate
 rotate_backups() {
-    local destination=$1
-    local name=$2
-    local rotations=$3
+    local destination="$1"
+    local name="$2"
+    local rotations="$3"
 	local number=$(ls $destination/$name.*$EXTENSION 2>/dev/null | wc -l | sed -e 's/^[ \t]*//');
 
 	# no need to rotate
@@ -49,9 +49,9 @@ rotate_backups() {
 
 # backup filesystem
 backup_filesystem() {
-    local sources=$1
-    local name=$2
-    local destination=$3
+    local sources="$1"
+    local name="$2"
+    local destination="$3"
 
     echo "Backing up $sources into $destination/$name.1$EXTENSION"
 	tar -czPhf $destination/$name.1$EXTENSION $sources
