@@ -54,7 +54,7 @@ backup_filesystem() {
     local destination="$3"
 
     echo "Backing up $sources into $destination/$name.1$EXTENSION"
-	tar -czPhf $destination/$name.1$EXTENSION $sources
+    GZIP="-9 --rsyncable" tar -czPhf $destination/$name.1$EXTENSION $sources
 	chmod 440 $destination/$name.1$EXTENSION
 }
 
