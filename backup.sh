@@ -1,50 +1,42 @@
 #!/bin/sh
-EXTENSION=".tar.gz"
+
+EXTENSION="tar.gz"
+DATE_FORMAT=$(date +%Y-%m-%d)
 
 # print help
 print_help() {
     echo "Usage: $0 -s <dir1 dir2...> -d <backups dir> -n <name> -r <number of rotations>"
 }
 
-# rotate
+# rotate backups by date
 rotate_backups() {
     local destination="$1"
     local name="$2"
     local rotations="$3"
-	local number=$(ls $destination/$name.*$EXTENSION 2>/dev/null | wc -l | sed -e 's/^[ \t]*//');
+    local total=$(ls $destination/$name.*$EXTENSION 2>/dev/null | wc -l | sed -e 's/^[ \t]*//');
 
-	# no need to rotate
-	if [ "$number" -eq 0 ]; then
-		echo "No existent backups detected."
-		return
-	fi
+    # no need to rotate
+    if [ "$total" -eq 0 ]; then
+        echo "No existent backups detected."
+        return
+    fi
 
-	# remove the oldest backup
-	if [ "$number" -eq "$rotations" ]; then
-		echo "Removing backup $destination/$name.$number$EXTENSION"
-		rm -f $destination/$name.$number$EXTENSION
-		number=$(($number-1))
-	fi
-
-	# remove all number of backups over the number of rotations
-	if [ "$number" -gt "$rotations" ]; then
-		over=$(($number-$rotations))
-		i=0
-		until [ "$i" < "$over" ]; do
-			echo "Removing $destination/$name.$number$EXTENSION"
-			rm -f $destination/$name.$number$EXTENSION
-			number=$(($number-1))
-			$(($i+1))
-		done
-	fi
-
-	number=$(($number+1))
-
-	for backup in $(ls -tr $destination/$name.*$EXTENSION 2>/dev/null); do
-		echo "Renaming $backup to $name.$number$EXTENSION"
-		mv -f $backup $destination/$name.$number$EXTENSION
-		number=$(($number-1))
-	done
+    if [ "$total" -eq "$rotations" ]; then # remove the oldest backup
+        backup=$(ls $destination/$name.*$EXTENSION 2>/dev/null | head -n 1 | sed 's,^[^ ]*/,,')
+        echo "Removing backup $destination/$backup"
+        rm -f $destination/$backup
+        total=$(($total-1))
+    elif [ "$total" -gt "$rotations" ]; then # remove all number of backups over the number of rotations
+        over=$(($total-$rotations))
+        i=1
+        until [ "$over" -lt "$i" ]; do
+            backup=$(ls $destination/$name.*$EXTENSION 2>/dev/null | head -n 1 | sed 's,^[^ ]*/,,')
+            echo "Removing $destination/$backup"
+            rm -f $destination/$backup
+            total=$(($total-1))
+            i=$(($i+1))
+        done
+    fi
 }
 
 # backup filesystem
@@ -53,12 +45,13 @@ backup_filesystem() {
     local name="$2"
     local destination="$3"
 
-    echo "Backing up $sources into $destination/$name.1$EXTENSION"
-    GZIP="-9 --rsyncable" tar -czPhf $destination/$name.1$EXTENSION $sources
-	chmod 440 $destination/$name.1$EXTENSION
+    echo "Backing up $sources into $destination/$name.$DATE_FORMAT.$EXTENSION"
+    rm -f $destination/$name.$DATE_FORMAT.$EXTENSION
+    GZIP="-9 --rsyncable" tar -czPhf $destination/$name.$DATE_FORMAT.$EXTENSION $sources
+    chmod 440 $destination/$name.$DATE_FORMAT.$EXTENSION
 }
 
-while getopts ":s:d:r:n:" opt; do
+while getopts ":s:d:r:n:i:" opt; do
   case $opt in
     s)
         sources=$OPTARG
