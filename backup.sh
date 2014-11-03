@@ -1,12 +1,14 @@
 #!/bin/sh
 EXTENSION="tar.gz"
 
+TAR_BIN=$(which tar)
+
 # print help
 print_help() {
     echo "Usage: $0 -s <sources> -d <backup directory> -n <name> -r <retention> [-y]"
 }
 
-# rotate
+# remove backups
 remove_backups() {
     local destination="$1"
     local name="$2"
@@ -38,7 +40,7 @@ backup_filesystem() {
     local destination="$4"
 
     echo "Backing up $sources into $destination/$name.$date.$EXTENSION"
-    GZIP="-9 --rsyncable" tar -czPhf $destination/$name.$date.$EXTENSION $sources
+    GZIP="-9 --rsyncable" $TAR_BIN -czPhf $destination/$name.$date.$EXTENSION $sources
     chmod 440 $destination/$name.$date.$EXTENSION
 }
 
