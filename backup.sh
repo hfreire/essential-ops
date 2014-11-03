@@ -17,7 +17,7 @@ remove_backups() {
     local backups=$(ls $destination/$name.*.$EXTENSION 2>/dev/null | wc -l | sed -e 's/^[ \t]*//');
 
     if [ ! -f "$destination/$name.$date.$EXTENSION" ]; then
-        $retention=$(($4-1));
+        retention=$(($4-1));
     fi
 
     if [ "$backups" -gt "$retention" ]; then
