@@ -1,61 +1,45 @@
 #!/bin/sh
-EXTENSION=".tar.gz"
+EXTENSION="tar.gz"
 
 # print help
 print_help() {
-    echo "Usage: $0 -s <dir1 dir2...> -d <backups dir> -n <name> -r <number of rotations>"
+    echo "Usage: $0 -s <sources> -d <backup directory> -n <name> -r <retention> [-y]"
 }
 
 # rotate
-rotate_backups() {
+remove_backups() {
     local destination="$1"
     local name="$2"
-    local rotations="$3"
-    local number=$(ls $destination/$name.*$EXTENSION 2>/dev/null | wc -l | sed -e 's/^[ \t]*//');
+    local date="$3"
+    local retention="$4"
+    local backups=$(ls $destination/$name.*.$EXTENSION 2>/dev/null | wc -l | sed -e 's/^[ \t]*//');
 
-    # no need to rotate
-    if [ "$number" -eq 0 ]; then
-        echo "No existent backups detected."
-        return
+    if [ ! -f "$destination/$name.$date.$EXTENSION" ]; then
+        $retention=$(($4-1));
     fi
 
-    # remove the oldest backup
-    if [ "$number" -eq "$rotations" ]; then
-        echo "Removing backup $destination/$name.$number$EXTENSION"
-        rm -f $destination/$name.$number$EXTENSION
-        number=$(($number-1))
-    fi
-
-    # remove all number of backups over the number of rotations
-    if [ "$number" -gt "$rotations" ]; then
-        over=$(($number-$rotations))
-        i=0
-        until [ "$i" < "$over" ]; do
-            echo "Removing $destination/$name.$number$EXTENSION"
-            rm -f $destination/$name.$number$EXTENSION
-            number=$(($number-1))
-            $(($i+1))
+    if [ "$backups" -gt "$retention" ]; then
+        for backup in $(ls $destination/$name.*.$EXTENSION 2>/dev/null); do
+            echo "Removing backup $backup"
+            rm -f $backup;
+            backups=$(($backups-1))
+            if [ "$backups" -le "$retention" ]; then
+                break;
+            fi
         done
     fi
-
-    number=$(($number+1))
-
-    for backup in $(ls -tr $destination/$name.*$EXTENSION 2>/dev/null); do
-        echo "Renaming $backup to $name.$number$EXTENSION"
-        mv -f $backup $destination/$name.$number$EXTENSION
-        number=$(($number-1))
-    done
 }
 
 # backup filesystem
 backup_filesystem() {
     local sources="$1"
     local name="$2"
-    local destination="$3"
+    local date="$3"
+    local destination="$4"
 
-    echo "Backing up $sources into $destination/$name.1$EXTENSION"
-    GZIP="-9 --rsyncable" tar -czPhf $destination/$name.1$EXTENSION $sources
-    chmod 440 $destination/$name.1$EXTENSION
+    echo "Backing up $sources into $destination/$name.$date.$EXTENSION"
+    GZIP="-9 --rsyncable" tar -czPhf $destination/$name.$date.$EXTENSION $sources
+    chmod 440 $destination/$name.$date.$EXTENSION
 }
 
 while getopts ":s:d:r:n:" opt; do
@@ -67,10 +51,13 @@ while getopts ":s:d:r:n:" opt; do
         destination=$OPTARG
         ;;
     r)
-        rotations=$OPTARG
+        retention=$OPTARG
         ;;
     n)
         name=$OPTARG
+        ;;
+    y)
+        yesterday=true
         ;;
     \?)
         echo "Invalid option: -$OPTARG" >&2
@@ -80,10 +67,16 @@ done
 
 [ -n "$sources" ] &&
 [ -n "$destination" ] &&
-[ -n "$rotations" ]  &&
+[ -n "$retention" ]  &&
 [ -n "$name" ] || { print_help; exit 1; }
 
-rotate_backups "$destination" "$name" "$rotations"
-backup_filesystem "$sources" "$name" "$destination"
+if [ -n "$yesterday" && $yesterday ]; then
+    date=$(date -d "yesterday" '+%Y-%m-%d')
+else
+    date=$(date +%Y-%m-%d)
+fi
+
+remove_backups "$destination" "$name" "$date" "$retention"
+backup_filesystem "$sources" "$name" "$date" "$destination"
 
 exit 0
