@@ -5,7 +5,7 @@ TAR_BIN=$(which tar)
 
 # print help
 print_help() {
-    echo "Usage: $0 -s <sources> -d <backup directory> -n <name> -r <retention> [-y]"
+    echo "Usage: $0 -s <sources> -d <backup directory> -n <name> -r <retention> [-yl]"
 }
 
 # remove backups
@@ -42,6 +42,12 @@ backup_filesystem() {
     echo "Backing up $sources into $destination/$name.$date.$EXTENSION"
     GZIP="-9 --rsyncable" $TAR_BIN -czPhf $destination/$name.$date.$EXTENSION $sources
     chmod 440 $destination/$name.$date.$EXTENSION
+
+}
+
+create_symlink() {
+    rm $destination/$name.$EXTENSION
+    ln -s $destination/$name.$date.$EXTENSION $destination/$name.$EXTENSION
 }
 
 while getopts ":s:d:r:n:y:" opt; do
@@ -60,6 +66,9 @@ while getopts ":s:d:r:n:y:" opt; do
         ;;
     y)
         yesterday=true
+        ;;
+    l)
+        link=true
         ;;
     \?)
         echo "Invalid option: -$OPTARG" >&2
@@ -80,5 +89,6 @@ fi
 
 remove_backups "$destination" "$name" "$date" "$retention"
 backup_filesystem "$sources" "$name" "$date" "$destination"
+link && create_symlink
 
 exit 0
