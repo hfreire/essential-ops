@@ -50,7 +50,7 @@ create_symlink() {
     ln -s $destination/$name.$date.$EXTENSION $destination/$name.$EXTENSION
 }
 
-while getopts ":s:d:r:n:y:" opt; do
+while getopts ":s:d:r:n:y:l:" opt; do
   case $opt in
     s)
         sources=$OPTARG
