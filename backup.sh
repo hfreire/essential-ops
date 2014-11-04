@@ -44,7 +44,7 @@ backup_filesystem() {
     chmod 440 $destination/$name.$date.$EXTENSION
 }
 
-while getopts ":s:d:r:n:" opt; do
+while getopts ":s:d:r:n:y:" opt; do
   case $opt in
     s)
         sources=$OPTARG
