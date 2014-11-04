@@ -81,7 +81,7 @@ done
 [ -n "$retention" ]  &&
 [ -n "$name" ] || { print_help; exit 1; }
 
-if [ -n "$yesterday" ] && [ $yesterday ]; then
+if [ -n "$yesterday" ]; then
     date=$(date -d "yesterday" '+%Y-%m-%d')
 else
     date=$(date +%Y-%m-%d)
