@@ -71,7 +71,7 @@ create_symlink() {
     ln -s $destination/$name.$date.$EXTENSION $destination/$name.$EXTENSION
 }
 
-while getopts ":u:p:h:d:n:r:l:" opt; do
+while getopts ":u:p:h:d:n:r:y:l:" opt; do
   case $opt in
     u)
         user=$OPTARG
