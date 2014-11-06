@@ -37,7 +37,7 @@ backup_filesystem() {
     local sources="$1"
     local name="$2"
     local date="$3"
-    local destination="$4"
+
 
     echo "Backing up $sources into $destination/$name.$date.$EXTENSION"
     GZIP="-9 --rsyncable" $TAR_BIN -czPhf $destination/$name.$date.$EXTENSION $sources
@@ -46,6 +46,10 @@ backup_filesystem() {
 }
 
 create_symlink() {
+    local destination="$1"
+    local name="$2"
+    local date="$3"
+
     rm $destination/$name.$EXTENSION
     ln -s $destination/$name.$date.$EXTENSION $destination/$name.$EXTENSION
 }
@@ -89,6 +93,6 @@ fi
 
 remove_backups "$destination" "$name" "$date" "$retention"
 backup_filesystem "$sources" "$name" "$date" "$destination"
-link && create_symlink
+link && create_symlink "$destination" "$name" "$date"
 
 exit 0

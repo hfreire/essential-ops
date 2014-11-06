@@ -62,7 +62,16 @@ backup_mysql() {
     wait
 }
 
-while getopts ":u:p:h:d:n:r:" opt; do
+create_symlink() {
+    local destination="$1"
+    local name="$2"
+    local date="$3"
+
+    rm $destination/$name.$EXTENSION
+    ln -s $destination/$name.$date.$EXTENSION $destination/$name.$EXTENSION
+}
+
+while getopts ":u:p:h:d:n:r:l:" opt; do
   case $opt in
     u)
         user=$OPTARG
@@ -84,6 +93,9 @@ while getopts ":u:p:h:d:n:r:" opt; do
         ;;
     y)
         yesterday=true
+        ;;
+    l)
+        link=true
         ;;
     \?)
         echo "Invalid option: -$OPTARG" >&2
@@ -110,5 +122,6 @@ mkdir -p $destination/$name/tables
 backup_mysql "$user" "$password" "$host" "$destination/$name"
 backup_filesystem "$destination/$name" "$name" "$date" "$destination"
 rm -rf $destination/$name
+link && create_symlink "$destination" "$name" "$date"
 
 exit 0
