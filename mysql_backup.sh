@@ -95,7 +95,7 @@ while getopts ":u:p:h:d:n:r:y:l:" opt; do
         yesterday=true
         ;;
     l)
-        link=true
+        symlink=true
         ;;
     \?)
         echo "Invalid option: -$OPTARG" >&2
@@ -122,6 +122,6 @@ mkdir -p $destination/$name/tables
 backup_mysql "$user" "$password" "$host" "$destination/$name"
 backup_filesystem "$destination/$name" "$name" "$date" "$destination"
 rm -rf $destination/$name
-link && create_symlink "$destination" "$name" "$date"
+symlink && create_symlink "$destination" "$name" "$date"
 
 exit 0

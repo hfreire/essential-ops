@@ -72,7 +72,7 @@ while getopts ":s:d:r:n:y:l:" opt; do
         yesterday=true
         ;;
     l)
-        link=true
+        symlink=true
         ;;
     \?)
         echo "Invalid option: -$OPTARG" >&2
@@ -93,6 +93,6 @@ fi
 
 remove_backups "$destination" "$name" "$date" "$retention"
 backup_filesystem "$sources" "$name" "$date" "$destination"
-link && create_symlink "$destination" "$name" "$date"
+symlink && create_symlink "$destination" "$name" "$date"
 
 exit 0
