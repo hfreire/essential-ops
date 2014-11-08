@@ -122,6 +122,6 @@ mkdir -p $destination/$name/tables
 backup_mysql "$user" "$password" "$host" "$destination/$name"
 backup_filesystem "$destination/$name" "$name" "$date" "$destination"
 rm -rf $destination/$name
-symlink && create_symlink "$destination" "$name" "$date"
+[ -n "$symlink" ] && create_symlink "$destination" "$name" "$date"
 
 exit 0
