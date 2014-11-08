@@ -93,6 +93,6 @@ fi
 
 remove_backups "$destination" "$name" "$date" "$retention"
 backup_filesystem "$sources" "$name" "$date" "$destination"
-[ -n "$symlink" ] && create_symlink "$destination" "$name" "$date"
+$symlink && create_symlink "$destination" "$name" "$date"
 
 exit 0
