@@ -50,8 +50,9 @@ create_symlink() {
     local name="$2"
     local date="$3"
 
-    rm $destination/$name.$EXTENSION
-    ln -s $destination/$name.$date.$EXTENSION $destination/$name.$EXTENSION
+    cd $destination
+    rm $name.$EXTENSION
+    ln -s $name.$date.$EXTENSION $name.$EXTENSION
 }
 
 while getopts ":s:d:r:n:y:l:" opt; do
