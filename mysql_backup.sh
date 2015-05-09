@@ -1,5 +1,5 @@
 #!/bin/sh
-EXTENSION="tar.gz"
+EXTENSION="tar.xz"
 
 MYSQL_BIN=$(which mysql)
 MYSQLDUMP_BIN=$(which mysqldump)
@@ -42,7 +42,7 @@ backup_filesystem() {
     local destination="$4"
 
     echo "Backing up $sources into $destination/$name.$date.$EXTENSION"
-    GZIP="-9 --rsyncable" $TAR_BIN -czPhf $destination/$name.$date.$EXTENSION $sources
+    XZ_OPT="-9e" $TAR_BIN -cJPhf $destination/$name.$date.$EXTENSION $sources
     chmod 440 $destination/$name.$date.$EXTENSION
 }
 

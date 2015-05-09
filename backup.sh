@@ -1,5 +1,5 @@
 #!/bin/sh
-EXTENSION="tar.gz"
+EXTENSION="tar.xz"
 
 TAR_BIN=$(which tar)
 
@@ -40,7 +40,7 @@ backup_filesystem() {
 
 
     echo "Backing up $sources into $destination/$name.$date.$EXTENSION"
-    GZIP="-9 --rsyncable" $TAR_BIN -czPhf $destination/$name.$date.$EXTENSION $sources
+    XZ_OPT="-9e" $TAR_BIN -cJPhf $destination/$name.$date.$EXTENSION $sources
     chmod 440 $destination/$name.$date.$EXTENSION
 
 }
