@@ -42,7 +42,7 @@ backup_filesystem() {
     local destination="$4"
 
     echo "Backing up $sources into $destination/$name.$date.$EXTENSION"
-    XZ_OPT="-9e" $TAR_BIN -cJPhf $destination/$name.$date.$EXTENSION $sources
+    XZ_OPT="-9e --memlimit=5%" $TAR_BIN -cJPhf $destination/$name.$date.$EXTENSION $sources
     chmod 440 $destination/$name.$date.$EXTENSION
 }
 
