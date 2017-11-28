@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+set -e
+
+CWPUT_NET=${CWPUT_NET:-"eth0"}
+
+metric_name="NetworkIn"
+unit="Bytes"
+
+rx=$(cat /sys/class/net/$CWPUT_NET/statistics/rx_bytes)
+
+if [ ! -f /tmp/cwput_rx_bytes ]; then
+    echo "$rx" > /tmp/cwput_rx_bytes
+fi
+
+prev=$(cat /tmp/cwput_rx_bytes)
+
+value=$(($rx - $prev))
+echo "$rx" > /tmp/cwput_rx_bytes
+
+echo "$metric_name;$unit;$value"

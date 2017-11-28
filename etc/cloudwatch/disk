@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+set -e
+
+unit="Percent"
+info=$(df -x tmpfs -x devtmpfs -l | tail -n+2)
+
+while read line; do
+    metric_name=
+    value=
+    # Get location of device mount
+    mount=${line##* }
+    mount=${mount:1}
+    # Get device percent used
+    value=${line%%\%*}
+    value=${value##* }
+    if [ "$mount" = "" ]; then
+        metric_name="RootDiskUtilization"
+    else
+        metric_name="${mount}DiskUtilization"
+    fi
+
+    echo "$metric_name;$unit;$value"
+
+done <<< "$info"

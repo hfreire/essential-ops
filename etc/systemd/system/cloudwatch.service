@@ -1,0 +1,10 @@
+[Unit]
+Description=essential-ops/cloudwatch
+Wants=cloudwatch.timer
+
+[Service]
+Environment="CONFIG_DIR=/opt/essential-ops/etc/cloudwatch"
+ExecStart=/opt/essential-ops/bin/cloudwatch.sh
+
+[Install]
+WantedBy=cloudwatch.target

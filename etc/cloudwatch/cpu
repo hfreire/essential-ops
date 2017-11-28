@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -e
+
+metric_name="CPUUtilization"
+unit="Percent"
+value=$(echo $[100-$(vmstat|tail -1|awk '{print $15}')])
+
+echo "$metric_name;$unit;$value"

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -e
+
+metric_name="ConnectionsTotal"
+unit="Count"
+value=$(ss -a -t | wc -l)
+
+echo "$metric_name;$unit;$value"

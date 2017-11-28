@@ -1,0 +1,10 @@
+[Unit]
+Description=essential-ops/cloudwatch
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=1min
+Unit=cloudwatch.target
+
+[Install]
+WantedBy=basic.target

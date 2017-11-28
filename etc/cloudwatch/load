@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -e
+
+metric_name="LoadAverage"
+unit="Count"
+value=$(cat /proc/loadavg |cut -d " " -f 1)
+
+echo "$metric_name;$unit;$value"
